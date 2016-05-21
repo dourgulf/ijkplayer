@@ -2315,6 +2315,17 @@ static int read_thread(void *arg)
         av_log(ffp, AV_LOG_WARNING, "remove 'timeout' option for rtmp.\n");
         av_dict_set(&ffp->format_opts, "timeout", NULL, 0);
     }
+    
+    // by DarwinRie decrease the opening delay
+    if (av_stristart(is->filename, "rtmp", NULL)) {
+        is->iformat = av_find_input_format("flv");
+    }
+    
+    ic->probesize = 4096;
+    ic->max_analyze_duration = 2000000;
+    ic->flags |= AVFMT_FLAG_NOBUFFER;
+    // by DarwinRie end!
+    
     err = avformat_open_input(&ic, is->filename, is->iformat, &ffp->format_opts);
     if (err < 0) {
         print_error(is->filename, err);
