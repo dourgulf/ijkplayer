@@ -4,6 +4,7 @@
 
 第一次修改内容: 主要是减少avformat_find_stream_info的时间, 从2~3s降低到0.xs以内.
 方式是在avformat_open_input之前设置如下的参数:
+```
     if (ffp->iformat_name) {
         is->iformat = av_find_input_format(ffp->iformat_name);
     }
@@ -14,8 +15,10 @@
         ic->max_analyze_duration = 2000000;
         ic->flags |= AVFMT_FLAG_NOBUFFER;
     }
+```
 这些参数的作用时间少ffmpeg分析的时间. 它会带来一个副作用, 就是可能不能正确的分析完整的流信息.
 但是, 对于我们直播应用而言, 流的信息我们是能够具体知道的, 因此, 我在另外一个地方对一些可能缺失的留信息进行的补全:
+```
         decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
         // by DarwinRie
         // if we can't find the width/height from stream, set it with metadata
@@ -31,6 +34,7 @@
         }
             
         ffp->node_vdec = ffpipeline_open_video_decoder(ffp->pipeline, ffp);
+```
 实践发现, 最主要的信息缺失是视频的宽度和高度数据, 它直接影响到VideoToolBox的创建.
 于是, 我在flv的meta数据里得到的了视频的宽度和高度数据.
 第一次修改尝试就到这里, 延迟还是在2s左右. 没有达到秒开的效果.
