@@ -1,3 +1,6 @@
+Try to make a version for live boardcasting.
+It need nodelay openiing with RTMP
+=========
 ijkplayer
 =========
 - Video player based on [ffplay](http://ffmpeg.org)
