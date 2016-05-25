@@ -10,19 +10,19 @@
     }
     else if (av_stristart(is->filename, "rtmp", NULL)) {
         // by DarwinRie
-        is->iformat = av_find_input_format("flv"); // 这里是感谢另一位直播同行的分享, 我不太确定是否有效果.
+        is->iformat = av_find_input_format("flv"); // 这里是感谢另一位直播同行的分享.
         ic->probesize = 4096;
         ic->max_analyze_duration = 2000000;
         ic->flags |= AVFMT_FLAG_NOBUFFER;
     }
 ```
-这些参数的作用时间少ffmpeg分析的时间. 它会带来一个副作用, 就是可能不能正确的分析完整的流信息.
-但是, 对于我们直播应用而言, 流的信息我们是能够具体知道的, 因此, 我在另外一个地方对一些可能缺失的留信息进行的补全:
+这些参数的作用是减少ffmpeg分析的时间. 它会带来一个副作用, 就是可能不能正确的分析完整的流信息.
+但是, 对于我们直播应用而言, 流的信息我们是能够具体知道的, 因此, 我在另外一个地方对一些可能缺失的流信息进行的补全:
 ```
         decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
         // by DarwinRie
         // if we can't find the width/height from stream, set it with metadata
-        // coz missing width
+        // coz missing width and height will cause VideoToolBox failed in creation
         int width = ffp->is->viddec.avctx->width;
         int height = ffp->is->viddec.avctx->height;
         if (width == 0 || height == 0) {
