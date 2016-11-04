@@ -9,10 +9,10 @@ mkdir -p "${UNIVERSAL_OUTPUT_FOLDER}"
 rm -rf "${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}.framework"
 
 # Step 1. Build Device and Simulator versions
-xcodebuild -target "${PROJECT_NAME}" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
+xcodebuild -project "${PROJECT_NAME}.xcodeproj" -target "${PROJECT_NAME}" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
 # ffmpeg在i386架构下编译需要使用“-read_only_relocs suppress”参数，
 # 而此参数又和bitcode冲突，实际上模拟器也并不需要什么i386版本了，于是去掉
-xcodebuild -target "${PROJECT_NAME}" -arch x86_64 -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
+xcodebuild -project "${PROJECT_NAME}.xcodeproj" -target "${PROJECT_NAME}" -arch x86_64 -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" clean build
 
 # Step 2. Copy the framework structure to the universal folder
 echo "==============Step 2=============="

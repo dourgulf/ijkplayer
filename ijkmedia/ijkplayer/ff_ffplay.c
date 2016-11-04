@@ -59,11 +59,6 @@
 # include "libavfilter/buffersrc.h"
 #endif
 
-<<<<<<< HEAD
-//#include "libavformat/afvformat.h"
-
-=======
->>>>>>> Bilibili/master
 #include "ijksdl/ijksdl_log.h"
 #include "ijkavformat/ijkavformat.h"
 #include "ff_cmdutils.h"
@@ -73,12 +68,8 @@
 #include "ff_ffplay_debug.h"
 #include "version.h"
 #include "ijkmeta.h"
-<<<<<<< HEAD
-#include "ff_ffutils.h"
-=======
 #include "ijkversion.h"
 #include <stdatomic.h>
->>>>>>> Bilibili/master
 
 #ifndef AV_CODEC_FLAG2_FAST
 #define AV_CODEC_FLAG2_FAST CODEC_FLAG2_FAST
@@ -114,13 +105,10 @@ static AVPacket flush_pkt;
 // FFP_MERGE: opt_add_vfilter
 #endif
 
-<<<<<<< HEAD
-=======
 #define IJKVERSION_GET_MAJOR(x)     ((x >> 16) & 0xFF)
 #define IJKVERSION_GET_MINOR(x)     ((x >>  8) & 0xFF)
 #define IJKVERSION_GET_MICRO(x)     ((x      ) & 0xFF)
 
->>>>>>> Bilibili/master
 #if CONFIG_AVFILTER
 static inline
 int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count1,
@@ -468,10 +456,7 @@ static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSub
 
 static void decoder_destroy(Decoder *d) {
     av_packet_unref(&d->pkt);
-<<<<<<< HEAD
-=======
     avcodec_free_context(&d->avctx);
->>>>>>> Bilibili/master
 }
 
 static void frame_queue_unref_item(Frame *vp)
@@ -676,66 +661,6 @@ static void video_image_display2(FFPlayer *ffp)
 // FFP_MERGE: video_audio_display
 
 static void stream_component_close(FFPlayer *ffp, int stream_index)
-<<<<<<< HEAD
-{
-    VideoState *is = ffp->is;
-    AVFormatContext *ic = is->ic;
-    AVCodecContext *avctx;
-
-    if (stream_index < 0 || stream_index >= ic->nb_streams)
-        return;
-    avctx = ic->streams[stream_index]->codec;
-
-    switch (avctx->codec_type) {
-    case AVMEDIA_TYPE_AUDIO:
-        decoder_abort(&is->auddec, &is->sampq);
-        SDL_AoutCloseAudio(ffp->aout);
-
-        decoder_destroy(&is->auddec);
-        swr_free(&is->swr_ctx);
-        av_freep(&is->audio_buf1);
-        is->audio_buf1_size = 0;
-        is->audio_buf = NULL;
-
-#ifdef FFP_MERGE
-        if (is->rdft) {
-            av_rdft_end(is->rdft);
-            av_freep(&is->rdft_data);
-            is->rdft = NULL;
-            is->rdft_bits = 0;
-        }
-#endif
-        break;
-    case AVMEDIA_TYPE_VIDEO:
-        decoder_abort(&is->viddec, &is->pictq);
-        decoder_destroy(&is->viddec);
-        break;
-        // FFP_MERGE: case AVMEDIA_TYPE_SUBTITLE:
-    default:
-        break;
-    }
-
-    ic->streams[stream_index]->discard = AVDISCARD_ALL;
-    avcodec_close(avctx);
-    switch (avctx->codec_type) {
-    case AVMEDIA_TYPE_AUDIO:
-        is->audio_st = NULL;
-        is->audio_stream = -1;
-        break;
-    case AVMEDIA_TYPE_VIDEO:
-        is->video_st = NULL;
-        is->video_stream = -1;
-        break;
-        // FFP_MERGE: case AVMEDIA_TYPE_SUBTITLE:
-    default:
-        break;
-    }
-}
-
-static void stream_close(FFPlayer *ffp)
-{
-    VideoState *is = ffp->is;
-=======
 {
     VideoState *is = ffp->is;
     AVFormatContext *ic = is->ic;
@@ -793,7 +718,6 @@ static void stream_close(FFPlayer *ffp)
 static void stream_close(FFPlayer *ffp)
 {
     VideoState *is = ffp->is;
->>>>>>> Bilibili/master
     /* XXX: use a special url_shutdown call to abort parse cleanly */
     is->abort_request = 1;
     packet_queue_abort(&is->videoq);
@@ -1126,14 +1050,7 @@ retry:
 
             /* compute nominal last_duration */
             last_duration = vp_duration(is, lastvp, vp);
-<<<<<<< HEAD
-            if (redisplay)
-                delay = 0.0;
-            else
-                delay = compute_target_delay(ffp, last_duration, is);
-=======
             delay = compute_target_delay(ffp, last_duration, is);
->>>>>>> Bilibili/master
 
             time= av_gettime_relative()/1000000.0;
             if (isnan(is->frame_timer) || time < is->frame_timer)
@@ -2151,19 +2068,11 @@ static void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
         len1 = is->audio_buf_size - is->audio_buf_index;
         if (len1 > len)
             len1 = len;
-<<<<<<< HEAD
-        if (!is->muted && is->audio_volume == SDL_MIX_MAXVOLUME)
-            memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
-        else {
-            memset(stream, is->silence_buf[0], len1);
-            if (!is->muted)
-=======
         if (!is->muted && is->audio_buf && is->audio_volume == SDL_MIX_MAXVOLUME)
             memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);
         else {
             memset(stream, 0, len1);
             if (!is->muted && is->audio_buf)
->>>>>>> Bilibili/master
                 SDL_MixAudio(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1, is->audio_volume);
         }
         len -= len1;
@@ -2407,11 +2316,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
             is->auddec.start_pts_tb = is->audio_st->time_base;
         }
         if ((ret = decoder_start(&is->auddec, audio_thread, ffp, "ff_audio_dec")) < 0)
-<<<<<<< HEAD
-            goto fail;
-=======
             goto out;
->>>>>>> Bilibili/master
         SDL_AoutPauseAudio(ffp->aout, 0);
         break;
     case AVMEDIA_TYPE_VIDEO:
@@ -2441,11 +2346,7 @@ static int stream_component_open(FFPlayer *ffp, int stream_index)
         if (!ffp->node_vdec)
             goto fail;
         if ((ret = decoder_start(&is->viddec, video_thread, ffp, "ff_video_dec")) < 0)
-<<<<<<< HEAD
-            goto fail;
-=======
             goto out;
->>>>>>> Bilibili/master
         is->queue_attachments_req = 1;
 
         if (ffp->max_fps >= 0) {
@@ -2577,27 +2478,19 @@ static int read_thread(void *arg)
         av_log(ffp, AV_LOG_WARNING, "remove 'timeout' option for rtmp.\n");
         av_dict_set(&ffp->format_opts, "timeout", NULL, 0);
     }
-<<<<<<< HEAD
     if (ffp->iformat_name) {
         is->iformat = av_find_input_format(ffp->iformat_name);
     }
     else if (av_stristart(is->filename, "rtmp", NULL)) {
         // by DarwinRie
         is->iformat = av_find_input_format("flv");
-//        ic->probesize = 1024;
         ic->probesize = 4096;
         ic->max_analyze_duration = 2000000;
         ic->flags |= AVFMT_FLAG_NOBUFFER;
         av_dict_set(&ffp->format_opts, "pixel_format", "rgb24", 0);
     }
     
-    log_timestamp("avformat_open_input begin");
-=======
-    if (ffp->iformat_name)
-        is->iformat = av_find_input_format(ffp->iformat_name);
->>>>>>> Bilibili/master
     err = avformat_open_input(&ic, is->filename, is->iformat, &ffp->format_opts);
-    log_timestamp("avformat_open_input end");
     if (err < 0) {
         print_error(is->filename, err);
         ret = -1;
@@ -2736,6 +2629,7 @@ static int read_thread(void *arg)
     if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) {
         stream_component_open(ffp, st_index[AVMEDIA_TYPE_AUDIO]);
     }
+    
     ret = -1;
     if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) {
         ret = stream_component_open(ffp, st_index[AVMEDIA_TYPE_VIDEO]);
@@ -2776,17 +2670,10 @@ static int read_thread(void *arg)
 
     if (!ffp->start_on_prepared)
         toggle_pause(ffp, 1);
-<<<<<<< HEAD
-    if (is->video_st && is->video_st->codec) {
-        AVCodecContext *avctx = is->video_st->codec;
-        ffp_notify_msg3(ffp, FFP_MSG_VIDEO_SIZE_CHANGED, avctx->width, avctx->height);
-        ffp_notify_msg3(ffp, FFP_MSG_SAR_CHANGED, avctx->sample_aspect_ratio.num, avctx->sample_aspect_ratio.den);
-=======
     if (is->video_st && is->video_st->codecpar) {
         AVCodecParameters *codecpar = is->video_st->codecpar;
         ffp_notify_msg3(ffp, FFP_MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
         ffp_notify_msg3(ffp, FFP_MSG_SAR_CHANGED, codecpar->sample_aspect_ratio.num, codecpar->sample_aspect_ratio.den);
->>>>>>> Bilibili/master
     }
     ffp->prepared = true;
     ffp_notify_msg1(ffp, FFP_MSG_PREPARED);
@@ -2905,14 +2792,7 @@ static int read_thread(void *arg)
 #ifdef FFP_MERGE
               (is->audioq.size + is->videoq.size + is->subtitleq.size > MAX_QUEUE_SIZE
 #else
-<<<<<<< HEAD
-              (((is->audioq.size + is->videoq.size > ffp->dcc.max_buffer_size)
-                 && (is->audioq.nb_packets > MIN_MIN_FRAMES || is->audio_stream < 0 || is->audioq.abort_request)
-                 && (is->videoq.nb_packets > MIN_MIN_FRAMES || is->video_stream < 0 || is->videoq.abort_request)
-                )
-=======
               (is->audioq.size + is->videoq.size > ffp->dcc.max_buffer_size
->>>>>>> Bilibili/master
 #endif
             || (   stream_has_enough_packets(is->audio_st, is->audio_stream, &is->audioq, MIN_FRAMES)
                 && stream_has_enough_packets(is->video_st, is->video_stream, &is->videoq, MIN_FRAMES)
@@ -3343,11 +3223,6 @@ void ffp_global_set_log_level(int log_level)
     av_log_set_level(av_level);
 }
 
-<<<<<<< HEAD
-void ffp_global_set_inject_callback(ijk_inject_callback cb)
-{
-    ijkav_register_inject_callback(cb);
-=======
 static ijk_inject_callback s_inject_callback;
 int inject_callback(void *opaque, int type, void *data, size_t data_size)
 {
@@ -3359,7 +3234,6 @@ int inject_callback(void *opaque, int type, void *data, size_t data_size)
 void ffp_global_set_inject_callback(ijk_inject_callback cb)
 {
     s_inject_callback = cb;
->>>>>>> Bilibili/master
 }
 
 void ffp_io_stat_register(void (*cb)(const char *url, int type, int bytes))
@@ -3478,76 +3352,6 @@ static AVDictionary **ffp_get_opt_dict(FFPlayer *ffp, int opt_category)
     }
 }
 
-<<<<<<< HEAD
-static void app_func_did_tcp_connect_ip_port(AVApplicationContext *h, int error, int family, const char *ip, int port)
-{
-    IJKAVInject_IpAddress inject_data = {0};
-    IjkAVInjectCallback inject_callback = ijkav_get_inject_callback();
-
-    if (!h || !h->opaque || !inject_callback || !ip)
-        return;
-
-    FFPlayer *ffp = (FFPlayer *)h->opaque;
-    if (!ffp->inject_opaque)
-        return;
-
-    inject_data.error  = error;
-    inject_data.family = family;
-    av_strlcpy(inject_data.ip, ip, sizeof(inject_data.ip));
-    inject_data.port   = port;
-
-    inject_callback(ffp->inject_opaque, IJKAVINJECT_DID_TCP_CONNECT, &inject_data, sizeof(inject_data));
-}
-
-static void app_func_on_http_event(AVApplicationContext *h, AVAppHttpEvent *event)
-{
-    IjkAVInjectCallback inject_callback = ijkav_get_inject_callback();
-
-    if (!h || !h->opaque || !inject_callback || !event)
-        return;
-
-    FFPlayer *ffp = (FFPlayer *)h->opaque;
-    if (!ffp->inject_opaque)
-        return;
-
-    int message = -1;
-    switch (event->event_type) {
-        case AVAPP_EVENT_WILL_HTTP_OPEN: message = IJKAVINJECT_WILL_HTTP_OPEN; break;
-        case AVAPP_EVENT_DID_HTTP_OPEN:  message = IJKAVINJECT_DID_HTTP_OPEN;  break;
-        case AVAPP_EVENT_WILL_HTTP_SEEK: message = IJKAVINJECT_WILL_HTTP_SEEK; break;
-        case AVAPP_EVENT_DID_HTTP_SEEK:  message = IJKAVINJECT_DID_HTTP_SEEK;  break;
-        default:
-            return;
-    }
-    inject_callback(ffp->inject_opaque, message, event, sizeof(AVAppHttpEvent));
-}
-
-static void app_func_on_io_traffic(AVApplicationContext *h, AVAppIOTraffic *event)
-{
-    IjkAVInjectCallback inject_callback = ijkav_get_inject_callback();
-
-    if (!h || !h->opaque || !inject_callback || !event)
-        return;
-
-    FFPlayer *ffp = (FFPlayer *)h->opaque;
-    if (!ffp->inject_opaque)
-        return;
-
-    if (event->bytes > 0)
-        SDL_SpeedSampler2Add(&ffp->stat.tcp_read_sampler, event->bytes);
-
-    inject_callback(ffp->inject_opaque, IJKAVINJECT_ON_IO_TRAFFIC, event, sizeof(AVAppIOTraffic));
-}
-
-void ffp_set_inject_opaque(FFPlayer *ffp, void *opaque)
-{
-    if (!ffp)
-        return;
-
-    ffp->inject_opaque = opaque;
-
-    ffp_set_option_int(ffp, FFP_OPT_CATEGORY_FORMAT, "ijkinject-opaque", (int64_t)(intptr_t)opaque);
-=======
 static int app_func_event(AVApplicationContext *h, int message ,void *data, size_t size)
 {
     if (!h || !h->opaque || !data)
@@ -3576,19 +3380,12 @@ void *ffp_set_inject_opaque(FFPlayer *ffp, void *opaque)
     void *prev_weak_thiz = ffp->inject_opaque;
     ffp->inject_opaque = opaque;
 
->>>>>>> Bilibili/master
     av_application_closep(&ffp->app_ctx);
     av_application_open(&ffp->app_ctx, ffp);
     ffp_set_option_int(ffp, FFP_OPT_CATEGORY_FORMAT, "ijkapplication", (int64_t)(intptr_t)ffp->app_ctx);
 
-<<<<<<< HEAD
-    ffp->app_ctx->func_did_tcp_connect_ip_port = app_func_did_tcp_connect_ip_port;
-    ffp->app_ctx->func_on_http_event           = app_func_on_http_event;
-    ffp->app_ctx->func_on_io_traffic           = app_func_on_io_traffic;
-=======
     ffp->app_ctx->func_on_app_event = app_func_event;
     return prev_weak_thiz;
->>>>>>> Bilibili/master
 }
 
 void ffp_set_option(FFPlayer *ffp, int opt_category, const char *name, const char *value)
@@ -3706,10 +3503,7 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
     }
 
     av_log(NULL, AV_LOG_INFO, "===== versions =====\n");
-<<<<<<< HEAD
-=======
     ffp_show_version_str(ffp, "ijkplayer",      ijk_version_info());
->>>>>>> Bilibili/master
     ffp_show_version_str(ffp, "FFmpeg",         av_version_info());
     ffp_show_version_int(ffp, "libavutil",      avutil_version());
     ffp_show_version_int(ffp, "libavcodec",     avcodec_version());
@@ -4084,11 +3878,7 @@ void ffp_check_buffering_l(FFPlayer *ffp)
             av_log(ffp, AV_LOG_DEBUG, "video cache=%%%d milli:(%d/%d) bytes:(%d/%d) packet:(%d/%d)\n", video_cached_percent,
                   (int)video_cached_duration, hwm_in_ms,
                   is->videoq.size, hwm_in_bytes,
-<<<<<<< HEAD
-                  is->audioq.nb_packets, MIN_FRAMES);
-=======
                   is->videoq.nb_packets, MIN_FRAMES);
->>>>>>> Bilibili/master
 #endif
         }
 
@@ -4217,18 +4007,7 @@ int ffp_get_video_rotate_degrees(FFPlayer *ffp)
             theta = 0;
             break;
     }
-<<<<<<< HEAD
-
-    return theta;
-}
-
-int ffp_set_stream_selected(FFPlayer *ffp, int stream, int selected)
-{
-    VideoState      *is = ffp->is;
-    AVFormatContext *ic = NULL;
-    AVCodecContext  *avctx = NULL;
-=======
-
+    
     return theta;
 }
 
@@ -4237,7 +4016,6 @@ int ffp_set_stream_selected(FFPlayer *ffp, int stream, int selected)
     VideoState        *is = ffp->is;
     AVFormatContext   *ic = NULL;
     AVCodecParameters *codecpar = NULL;
->>>>>>> Bilibili/master
     if (!is)
         return -1;
     ic = is->ic;
@@ -4248,133 +4026,6 @@ int ffp_set_stream_selected(FFPlayer *ffp, int stream, int selected)
         av_log(ffp, AV_LOG_ERROR, "invalid stream index %d >= stream number (%d)\n", stream, ic->nb_streams);
         return -1;
     }
-<<<<<<< HEAD
-
-    avctx = ic->streams[stream]->codec;
-
-    if (selected) {
-        switch (avctx->codec_type) {
-            case AVMEDIA_TYPE_VIDEO:
-                if (stream != is->video_stream && is->video_stream >= 0)
-                    stream_component_close(ffp, is->video_stream);
-                break;
-            case AVMEDIA_TYPE_AUDIO:
-                if (stream != is->audio_stream && is->audio_stream >= 0)
-                    stream_component_close(ffp, is->audio_stream);
-                break;
-            default:
-                av_log(ffp, AV_LOG_ERROR, "select invalid stream %d of video type %d\n", stream, avctx->codec_type);
-                return -1;
-        }
-        return stream_component_open(ffp, stream);
-    } else {
-        switch (avctx->codec_type) {
-            case AVMEDIA_TYPE_VIDEO:
-                if (stream == is->video_stream)
-                    stream_component_close(ffp, is->video_stream);
-                break;
-            case AVMEDIA_TYPE_AUDIO:
-                if (stream == is->audio_stream)
-                    stream_component_close(ffp, is->audio_stream);
-                break;
-            default:
-                av_log(ffp, AV_LOG_ERROR, "select invalid stream %d of audio type %d\n", stream, avctx->codec_type);
-                return -1;
-        }
-        return 0;
-    }
-}
-
-float ffp_get_property_float(FFPlayer *ffp, int id, float default_value)
-{
-    switch (id) {
-        case FFP_PROP_FLOAT_VIDEO_DECODE_FRAMES_PER_SECOND:
-            return ffp ? ffp->stat.vdps : default_value;
-        case FFP_PROP_FLOAT_VIDEO_OUTPUT_FRAMES_PER_SECOND:
-            return ffp ? ffp->stat.vfps : default_value;
-        case FFP_PROP_FLOAT_PLAYBACK_RATE:
-            return ffp ? ffp->pf_playback_rate : default_value;
-        case FFP_PROP_FLOAT_AVDELAY:
-            return ffp ? ffp->stat.avdelay : default_value;
-        case FFP_PROP_FLOAT_AVDIFF:
-            return ffp ? ffp->stat.avdiff : default_value;
-        default:
-            return default_value;
-    }
-}
-
-void ffp_set_property_float(FFPlayer *ffp, int id, float value)
-{
-    switch (id) {
-        case FFP_PROP_FLOAT_PLAYBACK_RATE:
-            ffp_set_playback_rate(ffp, value);
-        default:
-            return;
-    }
-}
-
-int64_t ffp_get_property_int64(FFPlayer *ffp, int id, int64_t default_value)
-{
-    switch (id) {
-        case FFP_PROP_INT64_SELECTED_VIDEO_STREAM:
-            if (!ffp || !ffp->is)
-                return default_value;
-            return ffp->is->video_stream;
-        case FFP_PROP_INT64_SELECTED_AUDIO_STREAM:
-            if (!ffp || !ffp->is)
-                return default_value;
-            return ffp->is->audio_stream;
-        case FFP_PROP_INT64_VIDEO_DECODER:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.vdec_type;
-        case FFP_PROP_INT64_AUDIO_DECODER:
-            return FFP_PROPV_DECODER_AVCODEC;
-
-        case FFP_PROP_INT64_VIDEO_CACHED_DURATION:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.video_cache.duration;
-        case FFP_PROP_INT64_AUDIO_CACHED_DURATION:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.audio_cache.duration;
-        case FFP_PROP_INT64_VIDEO_CACHED_BYTES:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.video_cache.bytes;
-        case FFP_PROP_INT64_AUDIO_CACHED_BYTES:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.audio_cache.bytes;
-        case FFP_PROP_INT64_VIDEO_CACHED_PACKETS:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.video_cache.packets;
-        case FFP_PROP_INT64_AUDIO_CACHED_PACKETS:
-            if (!ffp)
-                return default_value;
-            return ffp->stat.audio_cache.packets;
-        case FFP_PROP_INT64_BIT_RATE:
-            return ffp ? ffp->stat.bit_rate : default_value;
-        case FFP_PROP_INT64_TCP_SPEED:
-            return ffp ? SDL_SpeedSampler2GetSpeed(&ffp->stat.tcp_read_sampler) : default_value;
-        default:
-            return default_value;
-    }
-}
-
-void ffp_set_property_int64(FFPlayer *ffp, int id, int64_t value)
-{
-    switch (id) {
-        // case FFP_PROP_INT64_SELECTED_VIDEO_STREAM:
-        // case FFP_PROP_INT64_SELECTED_AUDIO_STREAM:
-        default:
-            break;
-    }
-}
-
-=======
 
     codecpar = ic->streams[stream]->codecpar;
 
@@ -4514,14 +4165,12 @@ void ffp_set_property_int64(FFPlayer *ffp, int id, int64_t value)
     }
 }
 
->>>>>>> Bilibili/master
 IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp)
 {
     if (!ffp)
         return NULL;
 
     return ffp->meta;
-<<<<<<< HEAD
 }
             
 #include <sys/time.h>
@@ -4529,6 +4178,4 @@ void log_timestamp(const char *msg) {
     struct timeval now;
     gettimeofday(&now,NULL);
     printf("%ld.%d %s\n", now.tv_sec, now.tv_usec, msg);
-=======
->>>>>>> Bilibili/master
 }
