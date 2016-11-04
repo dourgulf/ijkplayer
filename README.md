@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# ijkplayer
-=======
 尝试做一个针对RTMP直播的优化版本, 需求包括秒开, 后台声音, 1s内的延迟.
 
 [有感于国内好多厂家都使用ijkplayer做了修改, 有些已经做出了很多体验很好的版本却没有反馈回社区.]
@@ -41,6 +38,15 @@
 实践发现, 最主要的信息缺失是视频的宽度和高度数据, 它直接影响到VideoToolBox的创建.
 于是, 我在flv的meta数据里得到的了视频的宽度和高度数据.
 第一次修改尝试就到这里, 延迟还是在2s左右. 没有达到秒开的效果.
+
+---------
+2016-11-4 同步原项目代码，添加动态库的编译脚本（demo支持的最低版本从7.0变更到8.0）
+          动态库的编译方法：
+            1. 打开ios/IJKMediaPlayer/IJKMediaFramework项目，选中UniversalFramework这个target，执行编译
+            2. 编译成功之后在ios/IJKMediaPlayer/IJKMediaFramework/build目录的Debug或者Release目录会生成动态库
+            3. 把动态库加入你的工程，在你的工程的build setting里设置动态库的搜索路径，让它能搜索到动态库所在的路径（可以参考demo工程的设置方法）
+
+=========
 
 =========
 ijkplayer
