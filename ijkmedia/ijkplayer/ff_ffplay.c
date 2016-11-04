@@ -66,7 +66,6 @@
 #include "ff_ffpipeline.h"
 #include "ff_ffpipenode.h"
 #include "ff_ffplay_debug.h"
-#include "version.h"
 #include "ijkmeta.h"
 #include "ijkversion.h"
 #include <stdatomic.h>
