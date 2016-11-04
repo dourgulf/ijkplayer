@@ -1,4 +1,53 @@
+<<<<<<< HEAD
 # ijkplayer
+=======
+尝试做一个针对RTMP直播的优化版本, 需求包括秒开, 后台声音, 1s内的延迟.
+
+[有感于国内好多厂家都使用ijkplayer做了修改, 有些已经做出了很多体验很好的版本却没有反馈回社区.]
+
+第一次修改内容: 主要是减少avformat_find_stream_info的时间, 从2~3s降低到0.xs以内.
+方式是在avformat_open_input之前设置如下的参数:
+```
+    if (ffp->iformat_name) {
+        is->iformat = av_find_input_format(ffp->iformat_name);
+    }
+    else if (av_stristart(is->filename, "rtmp", NULL)) {
+        // by DarwinRie
+        is->iformat = av_find_input_format("flv"); // 这里是感谢另一位直播同行的分享.
+        ic->probesize = 4096;
+        ic->max_analyze_duration = 2000000;
+        ic->flags |= AVFMT_FLAG_NOBUFFER;
+    }
+```
+这些参数的作用是减少ffmpeg分析的时间. 它会带来一个副作用, 就是可能不能正确的分析完整的流信息.
+但是, 对于我们直播应用而言, 流的信息我们是能够具体知道的, 因此, 我在另外一个地方对一些可能缺失的流信息进行的补全:
+```
+        decoder_init(&is->viddec, avctx, &is->videoq, is->continue_read_thread);
+        // by DarwinRie
+        // if we can't find the width/height from stream, set it with metadata
+        // coz missing width and height will cause VideoToolBox failed in creation
+        int width = ffp->is->viddec.avctx->width;
+        int height = ffp->is->viddec.avctx->height;
+        if (width == 0 || height == 0) {
+            width = get_intvalue_from_meta(ic->metadata, "framewidth");
+            height = get_intvalue_from_meta(ic->metadata, "frameheight");
+            av_log(NULL, AV_LOG_WARNING, "update video with:%d and height:%d from meta\n", width, height);
+            ffp->is->viddec.avctx->width = width;
+            ffp->is->viddec.avctx->height = height;
+        }
+            
+        ffp->node_vdec = ffpipeline_open_video_decoder(ffp->pipeline, ffp);
+```
+实践发现, 最主要的信息缺失是视频的宽度和高度数据, 它直接影响到VideoToolBox的创建.
+于是, 我在flv的meta数据里得到的了视频的宽度和高度数据.
+第一次修改尝试就到这里, 延迟还是在2s左右. 没有达到秒开的效果.
+
+=========
+ijkplayer
+=========
+- Video player based on [ffplay](http://ffmpeg.org)
+ - Android: [MediaPlayer-like](android/ijkplayer/player-java/src/main/java/tv/danmaku/ijk/media/player/IMediaPlayer.java)
+>>>>>>> origin/master
 
  Platform | Build Status
  -------- | ------------
