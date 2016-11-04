@@ -41,31 +41,33 @@
 
 ---------
 2016-11-4 同步原项目代码，添加动态库的编译脚本（demo支持的最低版本从7.0变更到8.0）
-          动态库的编译方法：
-            1. 打开ios/IJKMediaPlayer/IJKMediaFramework项目，选中UniversalFramework这个target，执行编译
-            2. 编译成功之后在ios/IJKMediaPlayer/IJKMediaFramework/build目录的Debug或者Release目录会生成动态库
-            3. 把动态库加入你的工程，在你的工程的build setting里设置动态库的搜索路径，让它能搜索到动态库所在的路径（可以参考demo工程的设置方法）
 
-=========
+
+
+动态库的编译方法：
+
+1. 打开ios/IJKMediaPlayer/IJKMediaFramework项目，选中UniversalFramework这个target，执行编译
+2. 编译成功之后在ios/IJKMediaPlayer/IJKMediaFramework/build目录的Debug或者Release目录会生成动态库
+3. 把动态库加入你的工程，在你的工程的build setting里设置动态库的搜索路径，让它能搜索到动态库所在的路径（可以参考demo工程的设置方法）
 
 =========
 ijkplayer
 =========
 - Video player based on [ffplay](http://ffmpeg.org)
- - Android: [MediaPlayer-like](android/ijkplayer/player-java/src/main/java/tv/danmaku/ijk/media/player/IMediaPlayer.java)
+- Android: [MediaPlayer-like](android/ijkplayer/player-java/src/main/java/tv/danmaku/ijk/media/player/IMediaPlayer.java)
 >>>>>>> origin/master
 
- Platform | Build Status
- -------- | ------------
- Android | [![Build Status](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-android.svg?branch=master)](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-android)
- iOS | [![Build Status](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-ios.svg?branch=master)](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-ios)
+| Platform | Build Status                             |
+| -------- | ---------------------------------------- |
+| Android  | [![Build Status](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-android.svg?branch=master)](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-android) |
+| iOS      | [![Build Status](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-ios.svg?branch=master)](https://travis-ci.org/bbcallen/ci-ijk-ffmpeg-ios) |
 
 Video player based on [ffplay](http://ffmpeg.org)
 
 ### Download
 
 - Android:
- - Gradle
+- Gradle
 ```
 # required
 allprojects {
@@ -90,44 +92,44 @@ dependencies {
 }
 ```
 - iOS
- - in coming...
+- in coming...
 
 ### My Build Environment
 - Common
- - Mac OS X 10.11.5
+- Mac OS X 10.11.5
 - Android
- - [NDK r10e](http://developer.android.com/tools/sdk/ndk/index.html)
- - Android Studio 2.1.3
- - Gradle 2.14.1
+- [NDK r10e](http://developer.android.com/tools/sdk/ndk/index.html)
+- Android Studio 2.1.3
+- Gradle 2.14.1
 - iOS
- - Xcode 7.3 (7D175)
+- Xcode 7.3 (7D175)
 - [HomeBrew](http://brew.sh)
- - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
- - brew install git
+- ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+- brew install git
 
 ### Latest Changes
 - [NEWS.md](NEWS.md)
 
 ### Features
 - Common
- - remove rarely used ffmpeg components to reduce binary size [config/module-lite.sh](config/module-lite.sh)
- - workaround for some buggy online video.
+- remove rarely used ffmpeg components to reduce binary size [config/module-lite.sh](config/module-lite.sh)
+- workaround for some buggy online video.
 - Android
- - platform: API 9~23
- - cpu: ARMv7a, ARM64v8a, x86 (ARMv5 is not tested on real devices)
- - api: [MediaPlayer-like](android/ijkplayer/ijkplayer-java/src/main/java/tv/danmaku/ijk/media/player/IMediaPlayer.java)
- - video-output: NativeWindow, OpenGL ES 2.0
- - audio-output: AudioTrack, OpenSL ES
- - hw-decoder: MediaCodec (API 16+, Android 4.1+)
- - alternative-backend: android.media.MediaPlayer, ExoPlayer
+- platform: API 9~23
+- cpu: ARMv7a, ARM64v8a, x86 (ARMv5 is not tested on real devices)
+- api: [MediaPlayer-like](android/ijkplayer/ijkplayer-java/src/main/java/tv/danmaku/ijk/media/player/IMediaPlayer.java)
+- video-output: NativeWindow, OpenGL ES 2.0
+- audio-output: AudioTrack, OpenSL ES
+- hw-decoder: MediaCodec (API 16+, Android 4.1+)
+- alternative-backend: android.media.MediaPlayer, ExoPlayer
 - iOS
- - platform: iOS 6.0~9.3.x
- - cpu: armv7, arm64, i386, x86_64, (armv7s is obselete)
- - api: [MediaPlayer.framework-like](ios/IJKMediaPlayer/IJKMediaPlayer/IJKMediaPlayback.h)
- - video-output: OpenGL ES 2.0
- - audio-output: AudioQueue, AudioUnit
- - hw-decoder: VideoToolbox (iOS 8+)
- - alternative-backend: AVFoundation.Framework.AVPlayer, MediaPlayer.Framework.MPMoviePlayerControlelr (obselete since iOS 8)
+- platform: iOS 6.0~9.3.x
+- cpu: armv7, arm64, i386, x86_64, (armv7s is obselete)
+- api: [MediaPlayer.framework-like](ios/IJKMediaPlayer/IJKMediaPlayer/IJKMediaPlayback.h)
+- video-output: OpenGL ES 2.0
+- audio-output: AudioQueue, AudioUnit
+- hw-decoder: VideoToolbox (iOS 8+)
+- alternative-backend: AVFoundation.Framework.AVPlayer, MediaPlayer.Framework.MPMoviePlayerControlelr (obselete since iOS 8)
 
 ### NOT-ON-PLAN
 - obsolete platforms (Android: API-8 and below; iOS: pre-6.0)
