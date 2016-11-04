@@ -412,6 +412,7 @@
 				INFOPLIST_FILE = IJKMediaPodDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "4e122479-4a0c-4630-bb61-dbe0a74b9745";
 			};
 			name = Debug;
 		};
@@ -423,6 +424,7 @@
 				INFOPLIST_FILE = IJKMediaPodDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "4e122479-4a0c-4630-bb61-dbe0a74b9745";
 			};
 			name = Release;
 		};

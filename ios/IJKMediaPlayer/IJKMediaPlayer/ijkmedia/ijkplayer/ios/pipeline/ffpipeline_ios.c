@@ -22,7 +22,6 @@
 
 #include "ffpipeline_ios.h"
 #include "ffpipenode_ios_videotoolbox_vdec.h"
-#include "ffpipenode_ios_videotoolbox_vout.h"
 #include "ffpipenode_ffplay_vdec.h"
 #include "ff_ffplay.h"
 #import "ijksdl/ios/ijksdl_aout_ios_audiounit.h"
@@ -42,21 +41,19 @@ static IJKFF_Pipenode *func_open_video_decoder(IJKFF_Pipeline *pipeline, FFPlaye
     IJKFF_Pipeline_Opaque *opaque = pipeline->opaque;
     if (ffp->videotoolbox) {
         node = ffpipenode_create_video_decoder_from_ios_videotoolbox(ffp);
+        if (!node)
+            ALOGE("vtb fail!!! switch to ffmpeg decode!!!! \n");
     }
     if (node == NULL) {
-        ALOGE("vtb fail!!! switch to ffmpeg decode!!!! \n");
         node = ffpipenode_create_video_decoder_from_ffplay(ffp);
+        ffp->stat.vdec_type = FFP_PROPV_DECODER_AVCODEC;
         opaque->is_videotoolbox_open = false;
     } else {
+        ffp->stat.vdec_type = FFP_PROPV_DECODER_VIDEOTOOLBOX;
         opaque->is_videotoolbox_open = true;
     }
     ffp_notify_msg2(ffp, FFP_MSG_VIDEO_DECODER_OPEN, opaque->is_videotoolbox_open);
     return node;
-}
-
-static IJKFF_Pipenode *func_open_video_output(IJKFF_Pipeline *pipeline, FFPlayer *ffp)
-{
-    return ffpipenode_create_video_output_from_ios_videotoolbox(ffp);
 }
 
 static SDL_Aout *func_open_audio_output(IJKFF_Pipeline *pipeline, FFPlayer *ffp)
@@ -78,7 +75,6 @@ IJKFF_Pipeline *ffpipeline_create_from_ios(FFPlayer *ffp)
     opaque->ffp                       = ffp;
     pipeline->func_destroy            = func_destroy;
     pipeline->func_open_video_decoder = func_open_video_decoder;
-    pipeline->func_open_video_output  = func_open_video_output;
     pipeline->func_open_audio_output  = func_open_audio_output;
 
     return pipeline;

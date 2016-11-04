@@ -31,6 +31,7 @@ LOCAL_LDLIBS += -llog -landroid
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
 LOCAL_C_INCLUDES += $(realpath $(LOCAL_PATH)/..)
 LOCAL_C_INCLUDES += $(MY_APP_FFMPEG_INCLUDE_PATH)
+LOCAL_C_INCLUDES += $(realpath $(LOCAL_PATH)/../ijkj4a)
 
 LOCAL_SRC_FILES += ff_cmdutils.c
 LOCAL_SRC_FILES += ff_ffplay.c
@@ -41,7 +42,6 @@ LOCAL_SRC_FILES += ijkplayer.c
 
 LOCAL_SRC_FILES += pipeline/ffpipeline_ffplay.c
 LOCAL_SRC_FILES += pipeline/ffpipenode_ffplay_vdec.c
-LOCAL_SRC_FILES += pipeline/ffpipenode_ffplay_vout.c
 
 LOCAL_SRC_FILES += android/ffmpeg_api_jni.c
 LOCAL_SRC_FILES += android/ijkplayer_android.c
@@ -49,10 +49,22 @@ LOCAL_SRC_FILES += android/ijkplayer_jni.c
 
 LOCAL_SRC_FILES += android/pipeline/ffpipeline_android.c
 LOCAL_SRC_FILES += android/pipeline/ffpipenode_android_mediacodec_vdec.c
-LOCAL_SRC_FILES += android/pipeline/ffpipenode_android_mediacodec_vout.c
+
+LOCAL_SRC_FILES += ijkavformat/allformats.c
+LOCAL_SRC_FILES += ijkavformat/ijklivehook.c
+LOCAL_SRC_FILES += ijkavformat/ijkmediadatasource.c
+
+LOCAL_SRC_FILES  += ijkavformat/ijkasync.c
+LOCAL_SRC_FILES  += ijkavformat/ijkurlhook.c
+LOCAL_SRC_FILES  += ijkavformat/ijklongurl.c
+LOCAL_SRC_FILES  += ijkavformat/ijksegment.c
 
 LOCAL_SHARED_LIBRARIES := ijkffmpeg ijksdl
 LOCAL_STATIC_LIBRARIES := android-ndk-profiler
 
 LOCAL_MODULE := ijkplayer
+
+VERSION_SH  = $(LOCAL_PATH)/version.sh
+VERSION_H   = ijkversion.h
+$(info $(shell ($(VERSION_SH) $(LOCAL_PATH) $(VERSION_H))))
 include $(BUILD_SHARED_LIBRARY)

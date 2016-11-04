@@ -62,28 +62,41 @@ afterEvaluate { project ->
                     description POM_DESCRIPTION
                     url POM_URL
 
+                    licenses {
+                        license {
+                            name POM_LICENSE_NAME
+                            url POM_LICENSE_URL
+                            distribution POM_LICENSE_DIST
+                        }
+                    }
+
                     scm {
                         url POM_SCM_URL
                         connection POM_SCM_CONNECTION
                         developerConnection POM_SCM_DEV_CONNECTION
                     }
 
-                    licenses {
-                        license {
-                            name POM_LICENCE_NAME
-                            url POM_LICENCE_URL
-                            distribution POM_LICENCE_DIST
-                        }
-                    }
-
                     developers {
                         developer {
                             id POM_DEVELOPER_ID
                             name POM_DEVELOPER_NAME
+                            email POM_DEVELOPER_EMAIL
                         }
                     }
                 }
             }
+        }
+    }
+
+    android.libraryVariants.all { variant ->
+        if(variant.buildType.name.equals("release")) {
+            def jarTask = project.tasks.create(name: "jar${variant.name.capitalize()}", type: Jar) {
+                from variant.javaCompile.destinationDir
+                exclude "**/R.class"
+                exclude "**/R\$**.class"
+                exclude "**/BuildConfig.class"
+            }
+            jarTask.dependsOn variant.javaCompile
         }
     }
 
@@ -92,8 +105,8 @@ afterEvaluate { project ->
         sign configurations.archives
     }
 
-/*
     task androidJavadocs(type: Javadoc) {
+        failOnError false
         source = android.sourceSets.main.java.srcDirs
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     }
@@ -111,6 +124,6 @@ afterEvaluate { project ->
     artifacts {
         archives androidSourcesJar
         archives androidJavadocsJar
+        archives jarRelease
     }
-*/
 }

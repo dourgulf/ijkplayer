@@ -27,6 +27,7 @@ typedef enum IJKFFOptionCategory {
     kIJKFFOptionCategoryCodec  = 2,
     kIJKFFOptionCategorySws    = 3,
     kIJKFFOptionCategoryPlayer = 4,
+    kIJKFFOptionCategorySwr    = 5,
 } IJKFFOptionCategory;
 
 // for codec option 'skip_loop_filter' and 'skip_frame'
@@ -68,19 +69,6 @@ struct IjkMediaPlayer;
 -(void)setSwsOptionIntValue:       (int64_t)value forKey:(NSString *)key;
 -(void)setPlayerOptionIntValue:    (int64_t)value forKey:(NSString *)key;
 
--(void)setMaxFps:(int)value;
--(void)setFrameDrop:(int)value;
--(void)setVideoPictureSize:(int)value;
--(void)setVideoToolboxEnabled:(BOOL)value;
--(void)setVideoToolboxMaxFrameWidth:(int)value;
-
--(void)setReconnect:(int)value;
--(void)setTimeout:(int64_t)value;
--(void)setUserAgent:(NSString *)value;
-
--(void)setSkipLoopFilter:(IJKAVDiscard)value;
--(void)setSkipFrame:(IJKAVDiscard)value;
-
-@property(nonatomic) BOOL useRenderQueue;
+@property(nonatomic) BOOL showHudView;
 
 @end

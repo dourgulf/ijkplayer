@@ -36,74 +36,12 @@
 #define MAX_PKT_QUEUE_DEEP   350
 #define VTB_MAX_DECODING_SAMPLES 3
 
+typedef struct VideoToolBoxContext VideoToolBoxContext;
 
-typedef struct sample_info {
-    int     sample_id;
+VideoToolBoxContext* videotoolbox_create(FFPlayer* ffp, AVCodecContext* ic);
 
-    double  sort;
-    double  dts;
-    double  pts;
-    int     serial;
+int videotoolbox_decode_frame(VideoToolBoxContext* context);
 
-    volatile int is_decoding;
-} sample_info;
-
-
-typedef struct sort_queue {
-    double              dts;
-    double              pts;
-    int                 serial;
-    double              sort;
-    int64_t             width;
-    int64_t             height;
-    CVPixelBufferRef    pixel_buffer_ref;
-    volatile struct sort_queue  *nextframe;
-} sort_queue;
-
-
-typedef struct VideoToolBoxContext {
-    FFPlayer                   *ffp;
-    int                         width;
-    int                         height;
-    volatile bool               refresh_request;
-    volatile bool               new_seg_flag;
-    volatile bool               idr_based_identified;
-    int64_t                     last_keyframe_pts;
-    volatile bool               refresh_session;
-    volatile bool               recovery_drop_packet;
-    VTDecompressionSessionRef   m_vt_session;
-    CMFormatDescriptionRef      m_fmt_desc;
-    const char                 *m_pformat_name;
-    struct VTBPicture           m_videobuffer;
-    double                      m_sort_time_offset;
-    pthread_mutex_t             m_queue_mutex;
-    volatile sort_queue        *m_sort_queue;
-    volatile int32_t            m_queue_depth;
-    int32_t                     m_max_ref_frames;
-    bool                        m_convert_bytestream;
-    bool                        m_convert_3byteTo4byteNALSize;
-    int                         serial;
-    volatile double             last_sort;
-    bool                        dealloced;
-    int                         m_buffer_deep;
-    AVPacket                    m_buffer_packet[MAX_PKT_QUEUE_DEEP];
-
-    SDL_mutex                  *sample_info_mutex;
-    SDL_cond                   *sample_info_cond;
-    sample_info                 sample_info_array[VTB_MAX_DECODING_SAMPLES];
-    volatile int                sample_info_index;
-    volatile int                sample_info_id_generator;
-    volatile int                sample_infos_in_decoding;
-
-    Uint64                      benchmark_start_time;
-    Uint64                      benchmark_frame_count;
-} VideoToolBoxContext ;
-
-
-VideoToolBoxContext* init_videotoolbox(FFPlayer* ffp, AVCodecContext* ic);
-
-int videotoolbox_decode_video(VideoToolBoxContext* context, AVCodecContext *avctx, const AVPacket *avpkt,int* got_picture_ptr);
-
-void dealloc_videotoolbox(VideoToolBoxContext* context);
+void videotoolbox_free(VideoToolBoxContext* context);
 
 #endif

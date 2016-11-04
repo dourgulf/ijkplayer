@@ -25,6 +25,7 @@ bin/
 gen/
 libs/
 obj/
+ijkmedia/ijkplayer/ijkversion.h
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -33,3 +34,9 @@ local.properties
 .idea
 .gradle
 build/
+
+# Xcode
+xcuserdata
+xcshareddata
+*.xccheckout
+

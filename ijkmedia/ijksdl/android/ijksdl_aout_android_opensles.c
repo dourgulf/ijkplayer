@@ -248,8 +248,6 @@ static void aout_close_audio(SDL_Aout *aout)
     SDL_WaitThread(opaque->audio_tid, NULL);
     opaque->audio_tid = NULL;
 
-    freep((void **)&opaque->buffer);
-
     if (opaque->slPlayItf)
         (*opaque->slPlayItf)->SetPlayState(opaque->slPlayItf, SL_PLAYSTATE_STOPPED);
     if (opaque->slBufferQueueItf)
@@ -266,6 +264,8 @@ static void aout_close_audio(SDL_Aout *aout)
         (*opaque->slPlayerObject)->Destroy(opaque->slPlayerObject);
         opaque->slPlayerObject = NULL;
     }
+
+    freep((void **)&opaque->buffer);
 }
 
 static void aout_free_l(SDL_Aout *aout)
@@ -330,7 +330,9 @@ static int aout_open_audio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Aud
         // this workaround could be made conditional.
         //
         // by VLC/android_opensles.c
-        ALOGW("OpenSL-ES: force resample %lu to native sample rate %d\n", format_pcm->samplesPerSec / 1000, native_sample_rate);
+        ALOGW("OpenSL-ES: force resample %lu to native sample rate %d\n",
+              (unsigned long) format_pcm->samplesPerSec / 1000,
+              (int) native_sample_rate);
         format_pcm->samplesPerSec = native_sample_rate * 1000;
     }
 
@@ -428,7 +430,7 @@ static int aout_open_audio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Aud
     return opaque->buffer_capacity;
 fail:
     aout_close_audio(aout);
-    return 0;
+    return -1;
 }
 
 static void aout_pause_audio(SDL_Aout *aout, int pause_on)

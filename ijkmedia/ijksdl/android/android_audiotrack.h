@@ -67,6 +67,7 @@ typedef struct SDL_Android_AudioTrack_Spec {
         ENCODING_DEFAULT = 1,
         ENCODING_PCM_16BIT = 2, // signed, guaranteed to be supported by devices.
         ENCODING_PCM_8BIT = 3, // unsigned, not guaranteed to be supported by devices.
+        ENCODING_PCM_FLOAT = 4, // single-precision floating-point per sample
     } audio_format;
     int buffer_size_in_bytes;
 
@@ -75,13 +76,16 @@ typedef struct SDL_Android_AudioTrack_Spec {
         MODE_STREAM = 1,
     } mode;
 
+    enum WriteMode {
+        WRITE_BLOCKING     = 0,
+        WRITE_NON_BLOCKING = 1,
+    } write_mode; // not used
+
     // extra field
     int sdl_samples;
 } SDL_Android_AudioTrack_Spec;
 
 typedef struct SDL_Android_AudioTrack SDL_Android_AudioTrack;
-
-int SDL_Android_AudioTrack_global_init(JNIEnv *env);
 
 SDL_Android_AudioTrack *SDL_Android_AudioTrack_new_from_spec(JNIEnv *env, SDL_Android_AudioTrack_Spec *spec);
 SDL_Android_AudioTrack *SDL_Android_AudioTrack_new_from_sdl_spec(JNIEnv *env, const SDL_AudioSpec *sdl_spec);
@@ -97,7 +101,9 @@ void SDL_Android_AudioTrack_flush(JNIEnv *env, SDL_Android_AudioTrack *atrack);
 void SDL_Android_AudioTrack_set_volume(JNIEnv *env, SDL_Android_AudioTrack *atrack, float left_volume, float right_volume);
 void SDL_Android_AudioTrack_stop(JNIEnv *env, SDL_Android_AudioTrack *atrack);
 void SDL_Android_AudioTrack_release(JNIEnv *env, SDL_Android_AudioTrack *atrack);
-int SDL_Android_AudioTrack_reserve_buffer(JNIEnv *env, SDL_Android_AudioTrack *atrack, int len);
-int SDL_Android_AudioTrack_write_byte(JNIEnv *env, SDL_Android_AudioTrack *atrack, uint8_t *data, int len);
+int SDL_Android_AudioTrack_write(JNIEnv *env, SDL_Android_AudioTrack *atrack, uint8_t *data, int size_in_byte);
+
+int  SDL_Android_AudioTrack_getAudioSessionId(JNIEnv *env, SDL_Android_AudioTrack *atrack);
+void SDL_Android_AudioTrack_setSpeed(JNIEnv *env, SDL_Android_AudioTrack *atrack, float speed);
 
 #endif

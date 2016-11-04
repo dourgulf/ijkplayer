@@ -29,10 +29,6 @@
 #include "ijksdl_inc_ffmpeg.h"
 
 // TODO: 9 alignment to speed up memcpy when display
-SDL_VoutOverlay *SDL_VoutFFmpeg_CreateOverlay(int width, int height, Uint32 format, SDL_Vout *vout);
-
-int SDL_VoutFFmpeg_ConvertFrame(
-    SDL_VoutOverlay *overlay, AVFrame *frame,
-    struct SwsContext **p_sws_ctx, int sws_flags);
+SDL_VoutOverlay *SDL_VoutFFmpeg_CreateOverlay(int width, int height, int frame_format, SDL_Vout *vout);
 
 #endif
