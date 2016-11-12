@@ -34,6 +34,7 @@
 #import <CoreVideo/CVHostTime.h>
 #import <Foundation/Foundation.h>
 #import "IJKDeviceModel.h"
+#include <stdatomic.h>
 
 #define IJK_VTB_FCC_AVCC   SDL_FOURCC('C', 'c', 'v', 'a')
 
@@ -94,6 +95,10 @@ struct VideoToolBoxContext {
 
     SDL_SpeedSampler            sampler;
 };
+
+static volatile int _Atomic vtb_active = 0;
+static SDL_mutex *vtb_cond_mutex = NULL;
+static SDL_cond *vtb_cond = NULL;
 
 static void vtbformat_destroy(VTBFormatDesc *fmt_desc);
 static int  vtbformat_init(VTBFormatDesc *fmt_desc, AVCodecParameters *codecpar);
@@ -352,7 +357,7 @@ void VTDecoderCallback(void *decompressionOutputRefCon,
             goto failed;
         }
 
-        newFrame->pic.pkt_pts    = sample_info->pts;
+        newFrame->pic.pts        = sample_info->pts;
         newFrame->pic.pkt_dts    = sample_info->dts;
         newFrame->pic.sample_aspect_ratio.num = sample_info->sar_num;
         newFrame->pic.sample_aspect_ratio.den = sample_info->sar_den;
@@ -360,8 +365,7 @@ void VTDecoderCallback(void *decompressionOutputRefCon,
         newFrame->nextframe  = NULL;
 
         if (newFrame->pic.pts != AV_NOPTS_VALUE) {
-            newFrame->sort    = newFrame->pic.pkt_pts;
-            newFrame->pic.pts = newFrame->pic.pkt_pts;
+            newFrame->sort    = newFrame->pic.pts;
         } else {
             newFrame->sort    = newFrame->pic.pkt_dts;
             newFrame->pic.pts = newFrame->pic.pkt_dts;
@@ -934,6 +938,11 @@ void videotoolbox_free(VideoToolBoxContext* context)
     vtbformat_destroy(&context->fmt_desc);
 
     avcodec_parameters_free(&context->codecpar);
+    assert(vtb_cond && vtb_cond_mutex);
+    SDL_LockMutex(vtb_cond_mutex);
+    atomic_store(&vtb_active, 0);
+    SDL_CondSignal(vtb_cond);
+    SDL_UnlockMutex(vtb_cond_mutex);
 }
 
 int videotoolbox_decode_frame(VideoToolBoxContext* context)
@@ -1120,7 +1129,30 @@ fail:
 
 VideoToolBoxContext* videotoolbox_create(FFPlayer* ffp, AVCodecContext* avctx)
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        vtb_active = 0;
+        atomic_store(&vtb_active, 0);
+        vtb_cond = SDL_CreateCond();
+        vtb_cond_mutex = SDL_CreateMutex();
+    });
+
     int ret = 0;
+
+    SDL_LockMutex(vtb_cond_mutex);
+    if (atomic_load(&vtb_active)) {
+        SDL_CondWaitTimeout(vtb_cond, vtb_cond_mutex, 1000 * 10);
+        ret = atomic_load(&vtb_active);
+    }
+    if (!ret) {
+        atomic_store(&vtb_active, 1);
+    }
+    SDL_UnlockMutex(vtb_cond_mutex);
+
+    if (ret) {
+        ALOGW("%s - videotoolbox can not exists twice at the same time", __FUNCTION__);
+        return NULL;
+    }
 
     VideoToolBoxContext *context_vtb = (VideoToolBoxContext *)mallocz(sizeof(VideoToolBoxContext));
 
